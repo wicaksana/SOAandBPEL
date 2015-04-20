@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" 
+			 xmlns:p="http://www.w3.org/2001/XMLSchema" 
+			 xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype" 
+			 xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+			 xmlns:tns="http://www.PAHospital.org/ward" 
+			 xmlns:vprop="http://docs.oasis-open.org/wsbpel/2.0/varprop"
+			 xmlns:xsd="http://www.w3.org/2001/XMLSchema"	 
+			 xmlns:wsdl="http://www.PAHospital.org/LabCallbackService/" 
+			 xmlns:wsdl1="http://www.PAHospital.org/LabService/" 
+			 xmlns:wsdl2="http://www.PAHospital.org/PatService/" 
+			 xmlns:wsdl3="http://www.PAHospital.org/RadiologyCallbackService/" 
+			 xmlns:wsdl4="http://www.PAHospital.org/RadiologyService/" 
+			 xmlns:wsdl5="http://www.PAHospital.org/TransportationService/" 
+			 name="Wardv2" 
+			 targetNamespace="http://www.PAHospital.org/ward">
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     TYPE DEFINITION - List of types participating in this BPEL process 
+     The BPEL Designer will generate default request and response types
+     but you can define or import any XML Schema type and use them as part 
+     of the message types.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <plnk:partnerLinkType name="LabPLT">
+    <plnk:role name="LabProvider" portType="wsdl1:Laboratory"/>
+    <plnk:role name="LabRequester" portType="wsdl:LabCallback"/>
+  </plnk:partnerLinkType>
+    <plnk:partnerLinkType name="PatientDataPLT">
+    <plnk:role name="PatientDataProvider" portType="wsdl2:ElectronicPatientRecord"/>
+  </plnk:partnerLinkType>
+    <plnk:partnerLinkType name="TransportPLT">
+    <plnk:role name="TransportProvider" portType="wsdl5:Transportation"/>
+  </plnk:partnerLinkType>
+    <plnk:partnerLinkType name="RadiologyPLT">
+    <plnk:role name="RadiologyProvider" portType="wsdl4:Radiology"/>
+    <plnk:role name="RadiologyRequester" portType="wsdl3:RadiologyCallback"/>
+  </plnk:partnerLinkType>
+    <import location="LabService.wsdl" namespace="http://www.PAHospital.org/LabService/"/>
+    <import location="LabService-callback.wsdl" namespace="http://www.PAHospital.org/LabCallbackService/"/>
+    <import location="PatService.wsdl" namespace="http://www.PAHospital.org/PatService/"/>
+    <import location="TranspService.wsdl" namespace="http://www.PAHospital.org/TransportationService/"/>
+    <import location="RadService.wsdl" namespace="http://www.PAHospital.org/RadiologyService/"/>
+    <import location="RadService-callback.wsdl" namespace="http://www.PAHospital.org/RadiologyCallbackService/"/>
+    <types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.PAHospital.org/ward">
+
+            <element name="Wardv2Request">
+                <complexType>
+                    <sequence>
+                        <element name="PatID" type="string"/>
+                        <element name="PatName" type="string"/>
+                        <element name="PatStreet" type="string"/>
+                        <element name="PatZipCode" type="int"/>
+                        <element name="PatCity" type="string"/>
+                        <element name="PatBirthday" type="date"/>
+                        <element name="CasID" type="string"/>
+                        <element name="SampID" type="string"/>
+                        <element name="SampMaterial">
+                        	<simpleType>
+                        		<restriction base="string">
+                        			<enumeration value="BLOOD"/>
+                        			<enumeration value="URINE"/>
+                        		</restriction>
+                        	</simpleType>
+                        </element>
+                        <element maxOccurs="unbounded" name="LabPar" type="string"/>
+                        <element name="ExamType">
+                        	<simpleType>
+                        		<restriction base="string">
+                        			<enumeration value="XRAY"/>
+                        			<enumeration value="CT"/>
+                        		</restriction>
+                        	</simpleType>
+                        </element>
+                        <element name="needTransport">
+                        	<simpleType>
+                        		<restriction base="string">
+                        			<enumeration value="Yes"/>
+                        			<enumeration value="No"/>
+                        		</restriction>
+                        	</simpleType>
+  
+                        </element>
+                        <element name="ExamDate" type="date"/>
+                       	<element name="TransportDateTime" type="dateTime"/>
+                        <element name="RequestUnit" type="string"/>
+                        <element name="DestUnit" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
+
+            <element name="Wardv2Response">
+                <complexType>
+                    <sequence>
+				      <element name="RadiologyReport">
+				        <complexType>
+				          <sequence>
+				            <element name="PatientID" type="string" />
+				            <element name="RadiologyOrderID" type="string" />
+				            <element name="DateOfExamination" type="date" />
+				            <element name="ReportText" type="string" />
+				          </sequence>
+				        </complexType>
+				      </element>
+				      <element name="LabReport">
+				        <complexType>
+				          <sequence>
+				            <element name="LabOrderID" type="string" />
+				            <element name="PatientID" type="string" />
+				            <element name="SampleID" type="string" />
+				            <element name="LabValues" maxOccurs="unbounded">
+				              <complexType>
+				                <sequence>
+				                  <element name="LabParameter" type="string" />
+				                  <element name="LabValue" type="decimal" />
+				                </sequence>
+				              </complexType>
+				            </element>
+				          </sequence>
+				        </complexType>
+				      </element>
+                    </sequence>
+                </complexType>
+            </element>
+            
+            <element name="ValidateReport">
+            	<complexType>
+            		<sequence>
+            			<element name="PatiID" type="string"/>
+            			<element name="Validation" type="string"/>
+            		</sequence>
+            	</complexType>
+            </element>
+            <element name="ValidateReportResponse">
+            	<complexType>
+            		<sequence>
+            			<element name="out" type="string"/>
+            		</sequence>
+            	</complexType>
+            </element>
+        </schema>
+    </types>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     MESSAGE TYPE DEFINITION - Definition of the message types used as 
+     part of the port type defintions
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <message name="Wardv2RequestMessage">
+        <part element="tns:Wardv2Request" name="wardv2Request"/>
+    </message>
+    <message name="Wardv2ResponseMessage">
+        <part element="tns:Wardv2Response" name="wardv2Response"/>
+    </message>
+    <message name="ValidateReportRequest">
+    	<part element="tns:ValidateReport" name="validateReport"/>
+    </message>
+    <message name="ValidateReportResponse">
+    	<part element="tns:ValidateReportResponse" name="validateReportResponse"/>
+    </message>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PORT TYPE DEFINITION - A port type groups a set of operations into
+     a logical service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+
+    <!-- portType implemented by the Wardv2 BPEL process -->
+    <portType name="Wardv2">
+        <operation name="Order">
+            <input message="tns:Wardv2RequestMessage"/>
+            <output message="tns:Wardv2ResponseMessage"/>
+        </operation>
+        <operation name="ValidateReport">
+        	<input message="tns:ValidateReportRequest"/>
+        	<output message="tns:ValidateReportResponse"/>
+        </operation>
+    </portType>   
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PARTNER LINK TYPE DEFINITION
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <plnk:partnerLinkType name="Wardv2">
+        <plnk:role name="Wardv2Provider" portType="tns:Wardv2"/>
+    </plnk:partnerLinkType>
+
+    <vprop:property name="patientIDprop" type="xsd:string"/>
+    <vprop:propertyAlias propertyName="tns:patientIDprop" messageType="wsdl:SendLabReportResponse" part="LabReport">
+    	<vprop:query>/PatientID</vprop:query>
+    </vprop:propertyAlias>
+    <vprop:propertyAlias propertyName="tns:patientIDprop" messageType="wsdl2:GetPatientByIDResponse" part="Patient">
+    	<vprop:query>/PatientID</vprop:query>
+    </vprop:propertyAlias>
+    <vprop:propertyAlias propertyName="tns:patientIDprop" messageType="wsdl3:RadiologyReportRequest" part="RadiologyReport">
+    	<vprop:query>/PatientID</vprop:query>
+    </vprop:propertyAlias>
+    <vprop:propertyAlias propertyName="tns:patientIDprop" messageType="tns:ValidateReportRequest" part="validateReport">
+    	<vprop:query>/tns:PatiID</vprop:query>
+    </vprop:propertyAlias>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     BINDING DEFINITION - Defines the message format and protocol details
+     for a web service.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <binding name="Wardv2Binding" type="tns:Wardv2">
+    	<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    	<operation name="Order">
+    		<soap:operation soapAction="http://www.PAHospital.org/ward/process"/>
+    		<input>
+    			<soap:body use="literal"/>
+    		</input>
+    		<output>
+    			<soap:body use="literal"/>
+    		</output>
+    	</operation>
+    	<operation name="ValidateReport">
+    		<soap:operation soapAction="http://www.PAHospital.org/ward/validatereport"/>
+    		<input>
+    			<soap:body use="literal"/>
+    		</input>
+    		<output>
+    			<soap:body use="literal"/>
+    		</output>
+    	</operation>
+    	
+    </binding>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     SERVICE DEFINITION - A service groups a set of ports into
+     a service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <service name="Wardv2Service">
+    	<port binding="tns:Wardv2Binding" name="Wardv2Port">
+    		<soap:address location="http://localhost:8080/ode/processes/Wardv2"/>
+    	</port>
+    </service>
+</definitions>
